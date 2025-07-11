@@ -2,7 +2,7 @@
 import User from "../model/User.js";
 
 // Importing the password hashing utility to securely hash the admin password
-import { hashPassword } from "../utils/utility.js";
+import { hashPassword } from "../helpers/utility.js";
 
 // Async function that seeds a default admin account if it doesn't already exist
 const adminSeeder = async () => {

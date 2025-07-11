@@ -3,7 +3,11 @@ import bcrypt from 'bcrypt';
 
 // Import the User model (MongoDB schema)
 import User from '../model/User.js';
-import { hashPassword } from '../utils/utility.js';
+import { hashPassword } from '../helpers/utility.js';
+import { generateOtp } from '../helpers/generateOtp.js';
+import { sendMail } from '../helpers/sendMail.js';
+
+
 
 // ========================= REGISTER ============================
 const register = async (data) => {
@@ -63,5 +67,20 @@ const login = async (data) => {
     }
 };
 
+const forgotPassword = async (data) => {
+
+    const userRegistered = await User.findOne({ email: data.email });
+
+    if (!userRegistered) {
+        throw new Error("Email is Required");
+    }
+
+    const otp = generateOtp();
+
+    // Assuming sendMail is imported or defined elsewhere
+    await sendMail(data.email, otp);
+
+    return (data.email);
+};
 // Export both register and login functions from this module
-export default { register, login };
+export default { register, login, forgotPassword };

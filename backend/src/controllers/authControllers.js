@@ -87,5 +87,34 @@ const login = async (req, res) => {
     }
 };
 
+
+
+const forgotPassword = async (req, res) => {
+    try {
+
+        const { email } = req.body
+        console.log("email received", email)
+        if (!email) {
+
+            return res.status(400).json({
+                message: "Email is required",
+                success: false
+            })
+        }
+        const data = await authServices.forgotPassword({ email })
+        res.status(200).json({
+            message: "OTP sent to your email",
+            data,
+            success: true
+        })
+
+    } catch (error) {
+        res.status(400).json({
+            message: error.message,
+            success: false
+        })
+    }
+}
+
 // Exporting the controller functions for use in route files
-export { register, login };
+export { register, login, forgotPassword };
