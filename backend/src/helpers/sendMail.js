@@ -16,7 +16,7 @@ const sendMail = async (email, otp) => {
 
 
         const info = await transporter.sendMail({
-            from: `"Ronaldo" <${"raichamlingnischaya@gmail.com"}>`,
+            from: `"Ronaldo" <${"nischayachamlingrai@gmail.com"}>`,
             to: email,
             subject: "Your OTP CODE",
             html: `<b>Your OTP ${otp}</b>`, // HTML body

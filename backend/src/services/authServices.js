@@ -67,20 +67,25 @@ const login = async (data) => {
     }
 };
 
-const forgotPassword = async (data) => {
+// const forgotPassword = async (data) => {
 
-    const userRegistered = await User.findOne({ email: data.email });
+//     const userRegistered = await User.findOne({ email: data.email });
 
-    if (!userRegistered) {
-        throw new Error("Email is Required");
-    }
+//     if (!userRegistered) {
+//         throw new Error("Email is Required");
+//     }
 
-    const otp = generateOtp();
+//     const otp = generateOtp();
 
-    // Assuming sendMail is imported or defined elsewhere
-    await sendMail(data.email, otp);
+//     const newOtp = await otp.create({
+//         email: data.email,
+//         otp: otp,
+//     })
 
-    return (data.email);
-};
+//     // Assuming sendMail is imported or defined elsewhere
+//     await sendMail(data.email, otp);
+
+//     return newOtp
+// };
 // Export both register and login functions from this module
-export default { register, login, forgotPassword };
+export default { register, login };
