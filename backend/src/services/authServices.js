@@ -1,91 +1,105 @@
-// Import bcrypt for hashing and verifying passwords
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
+import User from "../model/User.js";
+import { generateOtp } from "../helpers/generateOtp.js";
+import { sendMail } from "../helpers/sendMail.js";
+import Otp from "../model/Otp.js";
 
-// Import the User model (MongoDB schema)
-import User from '../model/User.js';
-import { hashPassword } from '../helpers/utility.js';
-import { generateOtp } from '../helpers/generateOtp.js';
-import { sendMail } from '../helpers/sendMail.js';
-
-
-
-// ========================= REGISTER ============================
 const register = async (data) => {
-    // Destructure user info from request data
-    const { email, password, userName, phone } = data;
+    const hashedPassword = bcrypt.hashSync(data.password, 10);
 
-    // Calling the hashPassword function to securely hash the user's plain-text password before storing it
-    const hashedPassword = hashPassword(data.password);
+    // console.log(hashedPassword)
 
-    // 🔎 Check if a user with the same email already exists
+    const email = data.email;
+
     const userExist = await User.findOne({ email });
+    console.log(userExist);
 
     if (userExist) {
-        // 🚫 Prevent duplicate user registration
-        throw new Error("User Already Exists");
+        throw new Error("user already exists.");
     }
 
-    // ✅ Create and save a new user in the database
-    const newUser = await User.create({
-        email: email,
+    return await User.create({
+        email: data.email,
         password: hashedPassword,
-        userName: userName,
-        phone: phone
+        userName: data.userName,
+        phone: data.phone,
     });
-
-    // 📤 Return the newly created user
-    return newUser;
 };
 
-// ❌ This log will always print whether user exists or not — should be removed or moved
-console.log("user exists");
-
-
-// ========================== LOGIN ==============================
 const login = async (data) => {
+    const doEmailExist = await User.findOne({ email: data.email });
 
-    // 🔍 Find user(s) with the given email (returns array)
-    const douserExist = await User.findOne({ email: data.email });
-
-    if (!douserExist) {
-        // If no user found, throw error
-        throw new Error("User does't exists");
+    // if (!doEmailExist.length > 0) {
+    if (!doEmailExist) {
+        throw new Error("Invalid email user doesn't exist");
     }
 
-    // Extract hashed password from first found user
-    const dbPassword = douserExist.password;
+    const dbPassword = doEmailExist.password;
 
-    // ✅ Compare input password with hashed password from DB
-    const isPasswordMatched = bcrypt.compareSync(data.password, dbPassword);
+    const isPasswordMatch = bcrypt.compareSync(data.password, dbPassword);
 
-    if (isPasswordMatched) {
-        // ✅ Login success: return user data
-        return douserExist;
+    if (isPasswordMatch) {
+        return doEmailExist;
     } else {
-        // ❌ Login failed: invalid password
-        throw new Error("Invalid Login");
+        throw new Error("Invalid password");
     }
 };
 
-// const forgotPassword = async (data) => {
+const forgotPassword = async (data) => {
 
-//     const userRegistered = await User.findOne({ email: data.email });
+    const isUserValid = await User.findOne({ email: data.email });
 
-//     if (!userRegistered) {
-//         throw new Error("Email is Required");
-//     }
+    if (!isUserValid) {
+        throw new Error("User is not registered!");
+    }
 
-//     const otp = generateOtp();
+    const otp = generateOtp();
 
-//     const newOtp = await otp.create({
-//         email: data.email,
-//         otp: otp,
-//     })
+    const doesExist = await Otp.findOne({ email: data.email });
 
-//     // Assuming sendMail is imported or defined elsewhere
-//     await sendMail(data.email, otp);
+    let newOtp;
 
-//     return newOtp
-// };
-// Export both register and login functions from this module
-export default { register, login };
+    if (!doesExist) {
+        newOtp = await Otp.create({
+            email: data.email,
+            otp: otp,
+        });
+    } else {
+        newOtp = await Otp.findOneAndUpdate(
+            { email: data.email },
+            {
+                otp: otp,
+                createdAt: new Date(),
+            },
+            { new: true }
+        );
+    }
+
+    sendMail(data.email, otp);
+
+    return newOtp;
+};
+
+const verifyOtp = async ({ email, otp }) => {
+    const doesExist = await Otp.findOne({ email });
+
+    if (!doesExist) {
+        throw new Error("Email doesn't exist");
+    }
+
+    if (doesExist.otp !== otp) {
+        throw new Error("Invalid OTP");
+    }
+
+    await User.findOneAndUpdate(
+        { email },
+        { otpExpiresAt: new Date(Date.now() + 30 * 1000) }, //minutes sec milliseconds
+        { new: true }
+    );
+
+    //optional
+    await Otp.deleteOne({ email });
+    return "verifyOtp";
+};
+
+export default { register, login, forgotPassword, verifyOtp };

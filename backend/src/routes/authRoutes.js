@@ -1,62 +1,59 @@
 import express from "express";
-import { register } from "../controllers/authControllers.js";
-import { login } from '../controllers/authControllers.js'
-import Otp from "../model/Otp.js"
-import { generateOtp } from "../helpers/generateOtp.js";
-import { sendMail } from "../helpers/sendMail.js";
-import { forgotPassword } from '../controllers/authControllers.js'
-import { generate } from "otp-generator";
-const router = express.Router()
+import {
+    register,
+    login,
+    forgotPassword,
+    verifyOtp,
+} from "../controllers/authControllers.js";
+import User from "../model/User.js";
+import bcrypt from "bcrypt";
 
-router.post('/register', register)
-router.post('/login', login)
-router.post('/forgotPassword', async (req, res) => {
+const router = express.Router();
+
+router.post("/register", register);
+router.post("/login", login);
+router.post("/forgotPassword", forgotPassword);
+router.post("/verify-otp", verifyOtp);
+
+router.post("/reset-password", async (req, res) => {
     try {
-        const { email } = req.body
-        console.log("email", email)
-        if (!email) {
-            throw new Error("Email is required")
-        }
-        const otp = generateOtp()
-        const newOtp = await Otp.create({
-            email: email,
-            otp: otp
-        })
-        // Assuming sendMail is imported or defined elsewhere
-        sendMail(email, otp);
-        res.send(newOtp)
+        // const {email, password} = req.body
 
+        const { password } = req.body;
+        const email = req.cookies.userEmail;
+
+        if (!email || !password) {
+            throw new Error("Email and password required");
+        }
+
+        const doesUserExist = await User.findOne({ email });
+
+        if (!doesUserExist) {
+            throw new Error("User not registered");
+        }
+
+        if (!doesUserExist.otpExpiresAt || doesUserExist.otpExpiresAt < new Date) {
+            throw new Error("PLease verify OTP first");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const data = await User.findOneAndUpdate(
+            { email },
+            { password: hashedPassword, otpExpiresAt: null },
+            { new: true }
+        );
+
+        res.clearCookie("userEmail");
+
+        res.status(200).json({
+            message: "Password changed successfully",
+            data,
+        });
     } catch (error) {
-        console.log(error.message)
-        res.status(400).json({
-            message: "Error occurred",
-            success: false
-        })
+        console.log(error.message);
+        res.send(error.message);
     }
-})
+});
 
-router.post("/verify-otp", async (req, res) => {
-    try {
-        const { email, otp } = req.body
-
-        const doesEmailExists = await Otp.findOne({ email })
-
-        if (!doesEmailExists) {
-            throw new Error("Email doesn't Exists")
-        }
-        if (doesEmailExists.otp !== otp) {
-            throw new Error("Invalid OTP")
-        }
-
-        res.json({
-            message: "Otp validated",
-            data: doesEmailExists
-        })
-    } catch (error) {
-        console.log(error.message)
-        res.send(error.message)
-    }
-})
-
-
-export default router
+export default router;

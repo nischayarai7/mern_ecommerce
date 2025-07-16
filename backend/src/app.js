@@ -6,6 +6,7 @@ import productRoutes from './routes/productRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import cookieParser from "cookie-parser";
 import connectDB from "./config/database.js";
+import constant from "./config/constant.js";
 const app = express();
 
 app.use(express.json());
@@ -31,12 +32,13 @@ app.use('/api/product', productRoutes)
 app.use('/api/auth', authRoutes)
 
 
-const port = process.env.port
+const port = constant.PORT
 
 
-app.listen(3000, () => {
 
-    console.log("Port 3000is running")
+app.listen(port, () => {
+
+    console.log("Port 3000 is running")
 
 
 })

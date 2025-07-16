@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
+import constant from '../config/constant.js'; // ✅ default import
 
 dotenv.config()
 const sendMail = async (email, otp) => {
@@ -9,14 +10,14 @@ const sendMail = async (email, otp) => {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.APP_PASS
+                user: constant.EMAIL_USER,
+                pass: constant.EMAIL_PASS
             }
         })
 
 
         const info = await transporter.sendMail({
-            from: `"Ronaldo" <${"nischayachamlingrai@gmail.com"}>`,
+            from: `"Ronaldo" <${constant.EMAIL_USER}>`,
             to: email,
             subject: "Your OTP CODE",
             html: `<b>Your OTP ${otp}</b>`, // HTML body
