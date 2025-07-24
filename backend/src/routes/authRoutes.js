@@ -13,6 +13,25 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.post("/forgotPassword", forgotPassword);
+router.post("/reset-password", async (req, res) => {
+    try {
+        const { password } = req.body;
+        const email = req.cookies.userEmail;
+
+        if (!email) return res.status(400).json({ message: "No email found in cookie." });
+
+        const hashed = await bcrypt.hash(password, 10);
+        const user = await User.findOneAndUpdate({ email }, { password: hashed });
+
+        if (!user) return res.status(404).json({ message: "User not found." });
+
+        res.clearCookie("userEmail");
+        res.status(200).json({ success: true, message: "Password reset successful." });
+    } catch (err) {
+        res.status(500).json({ message: "Server error." });
+    }
+});
+
 router.post("/verify-otp", verifyOtp);
 
 router.post("/reset-password", async (req, res) => {

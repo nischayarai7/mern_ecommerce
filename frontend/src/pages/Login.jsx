@@ -1,13 +1,41 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
 import TextField from "../components/TextField";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if fields are empty
+    if (!email || !password) {
+      setErrorMsg("Email and password are required.");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:3000/api/auth/login", {
+        email,
+        password,
+      });
+
+      const { token } = res.data;
+
+      // Save token and navigate
+      localStorage.setItem("token", token);
+      setErrorMsg("");
+      alert("Login successful!");
+      navigate("/dashboard"); // or navigate("/")
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "Invalid credentials or server error.";
+      setErrorMsg(message);
+    }
   };
 
   return (
@@ -16,6 +44,13 @@ const Login = () => {
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
           Login
         </h2>
+
+        {errorMsg && (
+          <div className="mb-4 text-red-600 text-sm text-center">
+            {errorMsg}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <TextField
             label="Email"

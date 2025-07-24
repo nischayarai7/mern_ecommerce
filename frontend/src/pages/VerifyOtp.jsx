@@ -1,7 +1,71 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const VerifyOtp = () => {
-  return <div>VerifyOtp</div>;
+  const [otp, setOtp] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+
+    if (!otp) {
+      return setError("Please enter the OTP.");
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/auth/verify-otp",
+        { otp },
+        { withCredentials: true } // 🔥 Required to access cookie from backend
+      );
+
+      if (res.status === 200) {
+        setMessage("OTP verified! Redirecting...");
+        setTimeout(() => {
+          navigate("/reset-password"); // No need to pass email
+        }, 1500);
+      } else {
+        setError("Invalid or expired OTP.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message || "Something went wrong. Please try again."
+      );
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-blue-50 px-4">
+      <form
+        onSubmit={handleVerify}
+        className="bg-white p-6 rounded-lg shadow-md w-full max-w-md"
+      >
+        <h2 className="text-xl font-bold mb-4 text-center">Verify OTP</h2>
+
+        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+        {message && <p className="text-green-500 text-sm mb-2">{message}</p>}
+
+        <input
+          type="text"
+          placeholder="Enter OTP"
+          className="w-full mb-4 p-2 border rounded"
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+        />
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
+        >
+          Verify OTP
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default VerifyOtp;

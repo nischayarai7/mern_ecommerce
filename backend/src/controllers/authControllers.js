@@ -94,13 +94,13 @@ const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        res.cookie("userEmail", email);
 
         if (!email) {
             throw new Error("Email is required");
         }
 
         const data = await authServices.forgotPassword({ email });
+        res.cookie("userEmail", email);
         res.send(data);
     } catch (error) {
         console.log(error.message);
