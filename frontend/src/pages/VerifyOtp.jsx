@@ -20,7 +20,7 @@ const VerifyOtp = () => {
     try {
       const res = await axios.post(
         "http://localhost:3000/api/auth/verify-otp",
-        { otp }, // 👈 only otp — session (cookie) holds the rest
+        { otp }, //  only otp — session (cookie) holds the rest
         { withCredentials: true } // required to send cookies
       );
 
