@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -10,30 +10,30 @@ const VerifyOtp = () => {
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
 
-    if (!otp) {
+    if (!otp.trim()) {
       return setError("Please enter the OTP.");
     }
 
     try {
       const res = await axios.post(
         "http://localhost:3000/api/auth/verify-otp",
-        { otp },
-        { withCredentials: true } // 🔥 Required to access cookie from backend
+        { otp }, // 👈 only otp — session (cookie) holds the rest
+        { withCredentials: true } // required to send cookies
       );
 
-      if (res.status === 200) {
+      if (res.data.success) {
         setMessage("OTP verified! Redirecting...");
-        setTimeout(() => {
-          navigate("/reset-password"); // No need to pass email
-        }, 1500);
+        setTimeout(() => navigate("/reset-password"), 1500);
       } else {
-        setError("Invalid or expired OTP.");
+        setError(res.data.message || "Invalid or expired OTP.");
       }
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || "Something went wrong. Please try again."
+        err.response?.data?.message || "Verification failed. Try again."
       );
     }
   };

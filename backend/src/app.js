@@ -25,7 +25,7 @@ dotenv.config();
 connectDB();
 app.get("/test", (req, res) => {
     res.cookie("name", "name2", {
-        maxAge: 10 * 1000,
+        maxAge: 60 * 1000,
         httpOnly: true
     })
     res.status(200).send("<b><a style='color:white; background: black; padding: 2px'>Hello</a>,Welcome to my App!</b>")

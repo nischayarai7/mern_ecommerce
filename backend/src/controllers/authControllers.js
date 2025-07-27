@@ -100,7 +100,10 @@ const forgotPassword = async (req, res) => {
         }
 
         const data = await authServices.forgotPassword({ email });
-        res.cookie("userEmail", email);
+        res.cookie("userEmail", email, {
+            httpOnly: true,
+            secure: true
+        });
         res.send(data);
     } catch (error) {
         console.log(error.message);
@@ -113,19 +116,26 @@ const verifyOtp = async (req, res) => {
         const { otp } = req.body;
         const email = req.cookies.userEmail;
 
-        console.log(email);
-
-        // const { email, otp } = req.body;
-
         if (!email || !otp) {
-            throw new Error("Email and OTP required");
+            return res.status(400).json({ message: "Email and OTP required" });
         }
 
-        const data = await authServices.verifyOtp({ email, otp });
-        res.status(200).json({ data });
+        const isValid = await authServices.verifyOtp({ email, otp });
+
+        if (!isValid) {
+            return res.status(401).json({ message: "Invalid or expired OTP" });
+        }
+
+        // Optional: clear the email cookie after success
+        res.clearCookie("userEmail");
+
+        return res.status(200).json({ success: true, message: "OTP verified" });
     } catch (error) {
-        console.log(error.message);
-        res.send(error.message);
+        console.error("OTP verification error:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Server error during OTP verification",
+        });
     }
 };
 

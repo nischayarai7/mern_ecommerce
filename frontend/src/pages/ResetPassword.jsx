@@ -4,7 +4,7 @@ import axios from "axios";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -12,11 +12,11 @@ const ResetPassword = () => {
   const handleReset = async (e) => {
     e.preventDefault();
 
-    if (!password || !confirm) {
+    if (!password || !confirmPassword) {
       return setError("Please fill out all fields.");
     }
 
-    if (password !== confirm) {
+    if (password !== confirmPassword) {
       return setError("Passwords do not match.");
     }
 
@@ -24,7 +24,7 @@ const ResetPassword = () => {
       const res = await axios.post(
         "http://localhost:3000/api/auth/reset-password",
         { password },
-        { withCredentials: true } // 🔥 Important: this sends the cookie with email
+        { withCredentials: true } // Send cookie with email
       );
 
       if (res.status === 200) {
@@ -50,9 +50,18 @@ const ResetPassword = () => {
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
         {message && <p className="text-green-500 text-sm mb-3">{message}</p>}
 
+        {/* Hidden input for accessibility */}
+        <input
+          type="text"
+          autoComplete="username"
+          className="hidden"
+          readOnly
+        />
+
         <input
           type="password"
           placeholder="New password"
+          autoComplete="new-password"
           className="w-full mb-3 p-2 border rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -61,9 +70,10 @@ const ResetPassword = () => {
         <input
           type="password"
           placeholder="Confirm password"
+          autoComplete="new-password"
           className="w-full mb-4 p-2 border rounded"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
         <button
