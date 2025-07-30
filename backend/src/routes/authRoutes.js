@@ -5,7 +5,7 @@ import {
     forgotPassword,
     verifyOtp,
 } from "../controllers/authControllers.js";
-import User from "../model/User.js";
+import User from "../models/User.js";
 import bcrypt from "bcrypt";
 
 const router = express.Router();

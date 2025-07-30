@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
-import User from "../model/User.js";
+import User from "../models/User.js";
 import { generateOtp } from "../helpers/generateOtp.js";
 import { sendMail } from "../helpers/sendMail.js";
-import Otp from "../model/Otp.js";
+import Otp from "../models/Otp.js";
 
 const register = async (data) => {
     const hashedPassword = bcrypt.hashSync(data.password, 10);

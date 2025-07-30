@@ -2,7 +2,7 @@
 import express from "express";
 
 // Importing the User model (not directly used here but likely useful in controller logic or future updates)
-import User from "../model/User.js";
+import User from "../models/User.js";
 
 // Importing the controller function that handles user creation
 import { createUser } from "../controllers/userControllers.js";
@@ -16,7 +16,7 @@ const router = express.Router();
 
 // Defining a GET route at the base path ('/')
 // This route is protected with `isLoggedIn` middleware to ensure only authenticated users can access it
-router.get('/', isLoggedIn, isAdmin, (req, res) => {
+router.get('/user', isLoggedIn, isAdmin, (req, res) => {
 
     // Accessing the decoded user data injected by the isLoggedIn middleware
     const user = req.user;

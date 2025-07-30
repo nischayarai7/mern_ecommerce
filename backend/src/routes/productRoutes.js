@@ -7,6 +7,9 @@ import {
   deleteProductById,     // Controller function to delete a product by its ID
   updateProduct          // Controller function to update a product by its ID
 } from "../controllers/productControllers.js";
+import { uploads } from "../middleware/cloudinary.js";
+
+
 
 import { isLoggedIn } from "../middleware/isLoggedIn.js"; // Middleware to verify user is authenticated
 import { isAdmin } from "../middleware/isAdmin.js";       // Middleware to check if authenticated user is an admin
@@ -14,8 +17,9 @@ import { isAdmin } from "../middleware/isAdmin.js";       // Middleware to check
 const router = express.Router(); // Creating an Express router instance
 
 // Route to create a new product (protected: only logged-in admin users can access)
-router.post('/createProduct', isLoggedIn, isAdmin, createProduct);
+router.post('/createProduct', uploads.single('image'), createProduct);
 
+// isLoggedIn, isAdmin
 // Route to get a list of all products (public access)
 router.get('/getAllProduct', getAllProduct);
 

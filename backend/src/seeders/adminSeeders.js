@@ -1,5 +1,5 @@
 // Importing the User model to interact with the users collection in the database
-import User from "../model/User.js";
+import User from "../models/User.js";
 
 // Importing the password hashing utility to securely hash the admin password
 import { hashPassword } from "../helpers/utility.js";

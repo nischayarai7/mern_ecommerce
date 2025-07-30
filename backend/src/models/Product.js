@@ -50,6 +50,10 @@ const productSchema = new mongoose.Schema({
         type: String
     },
 
+    imageName: {
+        type: String
+    },
+
     featured: {
         type: Boolean,
         default: true

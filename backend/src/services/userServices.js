@@ -1,5 +1,5 @@
 // Importing the User model to interact with the MongoDB 'users' collection
-import User from "../model/User.js";
+import User from "../models/User.js";
 
 // Service function to create a new user in the database
 const createUser = async (data) => {
