@@ -10,6 +10,7 @@ import constant from "./config/constant.js";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js"
 // Initialize express app
 const app = express();
 
@@ -48,6 +49,7 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/order", orderRoutes)
 
 // Server listener
 const port = constant.PORT || 3000;
