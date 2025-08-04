@@ -6,7 +6,7 @@ import { createOrder, getAllOrder, getOrderById, getOrderByUserId, updateOrderSt
 
 
 const router = express.Router()
-router.post('/create', isLoggedIn, createOrder)
+router.post('/createOrder', isLoggedIn, createOrder)
 router.get('/', getAllOrder)
 router.get("/getOrderById/:id", getOrderById)
 router.get("/getOrderByUserId", isLoggedIn, getOrderByUserId)

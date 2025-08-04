@@ -1,20 +1,52 @@
 // Import the orderServices module which contains logic to handle order-related operations
 import { orderServices } from "../services/orderServices.js";
+import axios from 'axios'
 
 // Define the createOrder controller function to handle order creation
 const createOrder = async (req, res) => {
     try {
         // Get the authenticated user's ID from the request (attached via middleware)
         const userId = req.user?.id;
+        if (!userId) {
+            return res.status(400).json({
+                message: "Unauthorized. User ID missing.",
+                success: false
+            });
+        }
 
         // Get order data from the request body
-        const order = req.body;
+        const Order = req.body;
 
         // Attach the user's ID to the order data
-        order.user = userId;
+        Order.user = userId;
+
+
+
+        if (Order.paymentMethod === "Khalti") {
+            console.log(Order)
+            const totalAmount = Order.totalAmount
+
+            const options = {
+                "return_url": "http://localhost:5173/dashboard",
+                "website_url": "http://localhost:5173/",
+                "amount": totalAmount * 100,
+                "purchase_order_id": Date.now(),
+                "purchase_order_name": `order- ${Date.now()}`,
+            }
+
+            const result = await axios.post("https://dev.khalti.com/api/v2/epayment/initiate/", options, {
+                headers: {
+                    'Authorization': `Key ${process.env.KHALTI_SECRET_KEY}`,
+                    'Content-Type': 'application/json'
+
+                }
+            })
+            console.log(result.data)
+            return res.status(200).send(result.data)
+        }
 
         // Call the order service to create the order in the database
-        const data = await orderServices.createOrder(order);
+        const data = await orderServices.createOrder(Order);
 
         // Log the created order (optional for debugging)
         console.log(data);

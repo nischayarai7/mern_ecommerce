@@ -6,7 +6,7 @@ const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
+
     },
     orderNumber: {
         type: String,
@@ -47,7 +47,14 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         enum: ['COD', 'Khalti']
+    },
+
+    totalAmount: {
+        type: Number,
+        required: true
     }
+
+
 })
 const Order = mongoose.model("Order", orderSchema)
 export default Order
