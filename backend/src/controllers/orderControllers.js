@@ -41,8 +41,22 @@ const createOrder = async (req, res) => {
 
                 }
             })
-            console.log(result.data)
-            return res.status(200).send(result.data)
+
+            if (result.data.pidx) {
+                Order.pidx = result.data.pidx
+
+                const KhaltiResult = await orderServices.createOrder(Order)
+                KhaltiResult.paymentUrl = result.data.payment_url
+
+
+                console.log(result.data)
+                return res.status(200).json({
+                    data: KhaltiResult,
+                    payment_url: result.data.payment_url,
+                });
+            } else {
+                throw new Error("Khalti Payment initiate Failed")
+            }
         }
 
         // Call the order service to create the order in the database
@@ -144,6 +158,18 @@ const updatePaymentStatus = async (req, res) => {
     }
 }
 
+const updateKhaltiPaymentStatus = async (req, res) => {
+    try {
+        const data = await orderServices.updateKhaltiPaymentStatus(pidx, totalAmount, userId)
+        res.status(200).json({ data })
+
+    } catch (error) {
+        res.status(400).json({
+            message: "",
+            error: error.message
+        })
+    }
+}
 
 // Export the createOrder controller so it can be used in routes
-export { createOrder, getAllOrder, getOrderById, getOrderByUserId, updateOrderStatus, updatePaymentStatus }
+export { createOrder, getAllOrder, getOrderById, getOrderByUserId, updateOrderStatus, updatePaymentStatus, updateKhaltiPaymentStatus }
