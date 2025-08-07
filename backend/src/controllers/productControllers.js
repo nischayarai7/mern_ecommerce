@@ -32,6 +32,7 @@ const createProduct = async (req, res) => {
             processor: processor,
             display: display,
             brand: brand,
+            category: category,
             imageUrl,
             imageName,
         });
@@ -173,4 +174,5 @@ export {
     getProductById,
     deleteProductById,
     updateProduct,
+
 };

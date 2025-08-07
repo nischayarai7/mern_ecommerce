@@ -39,6 +39,7 @@ const updateKhaltiPaymentStatus = async (pidx, totalAmount, userId) => {
     if (Order.user !== userId) { throw new Error("Invalid Operation") }
 
     const result = await Order.findOneAndUpdate({ pidx }, { paymentStatus: "COMPLETED" })
+
 }
 
 export const orderServices = { createOrder, getAllOrder, getOrderById, getOrderByUserId, updateOrderStatus, updatePaymentStatus, updateKhaltiPaymentStatus }
